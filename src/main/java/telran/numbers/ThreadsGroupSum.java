@@ -12,6 +12,7 @@ public class ThreadsGroupSum extends GroupSum {
     @Override
     public long computeSum() {
         FutureTask<Long>[] tasks = new FutureTask[groups.length];
+        setupTasks(tasks);
         startTasks(tasks);
         return getSum(tasks);
     }
@@ -26,10 +27,13 @@ public class ThreadsGroupSum extends GroupSum {
         }).sum();
     }
 
-    protected void startTasks(FutureTask<Long>[] tasks) {
+    private void setupTasks(FutureTask<Long>[] tasks) {
         for (int i = 0; i < tasks.length; i++) {
             tasks[i] = new FutureTask<>(new OneGroupSum(groups[i]));
-            new Thread(tasks[i]).start();
         }
+    }
+
+    protected void startTasks(FutureTask<Long>[] tasks) {
+        Arrays.stream(tasks).forEach(t -> new Thread(t).start());
     }
 }
